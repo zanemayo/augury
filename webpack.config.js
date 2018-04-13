@@ -15,6 +15,7 @@ const webpack = require('webpack');
 const DefinePlugin = webpack.DefinePlugin;
 const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const AngularCompilerPlugin = require('@ngtools/webpack').AngularCompilerPlugin
 
 /**
  * CROSS-BROWSER COMPATIBILITY (and other builds)
@@ -108,16 +109,8 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        use: 'ts-loader',
-        exclude: [
-          /\.min\.js$/,
-          /\.spec\.ts$/,
-          /\.e2e\.ts$/,
-          /web_modules/,
-          /test/,
-          /node_modules\/(?!(ng2-.+))/
-        ]
+        test: /(?:\.ngfactory\.js|\.ngstyle\.js|\.ts)$/,
+        use: '@ngtools/webpack',
       },
       {
         test: /\.css$/,
@@ -152,6 +145,11 @@ module.exports = {
       'PRODUCTION': JSON.stringify(isProduction),
       'VERSION': JSON.stringify(pkg.version),
       'SENTRY_KEY': JSON.stringify(process.env.SENTRY_KEY),
+    }),
+    new AngularCompilerPlugin({
+      tsConfigPath: 'tsconfig.json',
+      entryModule: './src/frontend/module#FrontendModule',
+      sourceMap: true,
     }),
     new MergeJsonWebpackPlugin({
       "files": [
